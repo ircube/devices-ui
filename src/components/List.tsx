@@ -18,14 +18,14 @@ interface ListProps {
 
 const List: FC<ListProps> = ({ value }) => {
   const [list, setList] = useState(value);
-  const [filter, setFilter] = useState("ALL");
+  const [filter, setFilter] = useState("");
   const [sort, setSort] = useState("");
 
   const handleFilterChange = (event: SelectChangeEvent<string>) => {
     setFilter(event.target.value);
     setList(
       [...value].filter((device) => {
-        if (event.target.value === "ALL") return true;
+        if (event.target.value === "") return true;
         return device?.type === event.target.value;
       })
     );
@@ -52,7 +52,7 @@ const List: FC<ListProps> = ({ value }) => {
   return (
     <>
       <div>
-        <FormControl sx={{ m: 1, minWidth: 140 }}>
+        <FormControl sx={{ m: 1, minWidth: 190 }}>
           <InputLabel id="device-type">Show by device type</InputLabel>
           <Select
             labelId="device-type"
@@ -61,7 +61,7 @@ const List: FC<ListProps> = ({ value }) => {
             label="Show by device type"
             onChange={handleFilterChange}
           >
-            <MenuItem value={"ALL"}>All</MenuItem>
+            <MenuItem value={""}>None</MenuItem>
             <MenuItem value={"WINDOWS_WORKSTATION"}>
               Windows Workstation
             </MenuItem>
@@ -69,7 +69,7 @@ const List: FC<ListProps> = ({ value }) => {
             <MenuItem value={"MAC"}>Mac</MenuItem>
           </Select>
         </FormControl>
-        <FormControl sx={{ m: 1, minWidth: 140 }}>
+        <FormControl sx={{ m: 1, minWidth: 160 }}>
           <InputLabel id="sort-by">Sort by</InputLabel>
           <Select
             labelId="sort-by"
@@ -99,7 +99,7 @@ const List: FC<ListProps> = ({ value }) => {
                   >
                     {item.type}
                   </Typography>
-                  <span>{item.hdd_capacity} GB</span>
+                  <span> - {item.hdd_capacity} GB</span>
                 </Fragment>
               }
             />
