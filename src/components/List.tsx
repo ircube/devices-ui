@@ -1,4 +1,5 @@
 import {
+  Fab,
   FormControl,
   InputLabel,
   ListItem,
@@ -8,18 +9,58 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import Typography from "@mui/material/Typography";
+import AddIcon from "@mui/icons-material/Add";
 import MuiList from "@mui/material/List";
-import { FC, Fragment, useState } from "react";
+import { FC, Fragment, useEffect, useState } from "react";
+
 import Device from "../core/models/device.model";
+import AddDevice from "../app/devices/AddDevice";
+import { DeviceSave } from "./Add";
+import { DeviceMethods } from "../app/devices/Devices.view";
 
 interface ListProps {
   value: Array<Device>;
+  methods: DeviceMethods;
 }
 
-const List: FC<ListProps> = ({ value }) => {
-  const [list, setList] = useState(value);
+const List: FC<ListProps> = ({ value, methods }) => {
+  const [list, setList] = useState<Array<Device>>([]);
   const [filter, setFilter] = useState("");
   const [sort, setSort] = useState("");
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    console.log("value", value);
+    setList(value);
+  }, [value]);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleSave = async (deviceSave: DeviceSave) => {
+    const newDevice = await methods.post("/devices", deviceSave);
+    if (methods.response.ok) {
+      console.log("saved!", newDevice);
+      await setTimeout(() => {
+        handleReloadList();
+      }, 1000);
+    } else {
+      console.error("Error Saving!", newDevice);
+    }
+    handleClose();
+  };
+
+  const handleReloadList = async () => {
+    // TODO: refactor this function.
+    const devices = await methods.get("/devices");
+    if (methods.response.ok) {
+      methods.setDevices(devices);
+    }
+  };
 
   const handleFilterChange = (event: SelectChangeEvent<string>) => {
     setFilter(event.target.value);
@@ -106,6 +147,14 @@ const List: FC<ListProps> = ({ value }) => {
           </ListItem>
         ))}
       </MuiList>
+      <Fab color="secondary" aria-label="add" onClick={handleClickOpen}>
+        <AddIcon />
+      </Fab>
+      <AddDevice
+        open={open}
+        handleClose={handleClose}
+        handleSave={handleSave}
+      ></AddDevice>
     </>
   );
 };
